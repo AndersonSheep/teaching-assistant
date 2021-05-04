@@ -1,91 +1,192 @@
 import { Component, OnInit } from '@angular/core';
-import { Avaliacao } from '../../../../common/avaliacao';
 import { Turma } from '../../../../common/turma';
+import { MediaService } from './media.service';
 import { TurmasService } from '../turmas/turmas.service';
-import { TurmasComponent } from '../turmas/turmas.component';
+
 
 @Component({
-  selector: 'app-media',
+  selector: 'app-turmas',
   templateUrl: './media.component.html',
-  styleUrls: ['./media.component.css']
+  styleUrls: [ './media.component.css' ]
 })
 export class MediaComponent implements OnInit {
-
-  turmaMetas: string[] = [];
-  listaTurmas: Turma[];
-  alunoSelecionado: string = '';
-  descricaoTurmaSelecionada: string = '';
-  turmaSelecionada: Turma;
-  turmas: Turma[]=[];
+  turmas: Turma[] = [];
   turma: Turma = new Turma();
-  
-  turmaInexistente: boolean = false;
-  notaInvalida: boolean = false;
+  turmaMetas: string = '';
+  turmaPeso: number []= [];
+  turmaRepetida: boolean = false;
+  turmaEditar: Turma = new Turma();
+  turmaEditarMetas: string = '';
 
-  avaliacaoEditar: Avaliacao = new Avaliacao();
+  constructor(private turmasService: TurmasService) { }
 
-  turmaChamar: TurmasComponent;
-
-  constructor(
-    private turmasService: TurmasService
-  ) {}
+  turmasStub = [
+    {
+      descricao: "2018.1",
+      metas: ["Requisitos", "Ger. Config.", "Ger. Proj.", "Testes", "Projeto"],
+      peso: [1, 2, 2, 2, 3],
+      vagas: 60,
+      matriculas: [],
+      roteiros: [],
+      monitores: []
+    },
+    {
+      descricao: "2018.2",
+      metas: ["Requisitos", "Ger. Config.", "Ger. Proj.", "Testes", "Projeto"],
+      peso: [2, 1, 1, 3, 3],
+      vagas: 60,
+      matriculas: [],
+      roteiros: [],
+      monitores: []
+    },
+    {
+      descricao: "2019.1",
+      metas: ["Requisitos", "Ger. Config.", "Ger. Proj.", "Testes", "Projeto"],
+      peso: [1, 2, 2, 2, 3],
+      vagas: 60,
+      matriculas: [],
+      roteiros: [],
+      monitores: []
+    },
+    {
+      descricao: "2019.2",
+      metas: ["Requisitos", "Ger. Config.", "Ger. Proj.", "Testes", "Projeto"],
+      peso: [1, 2, 2, 2, 3],
+      vagas: 60,
+      matriculas: [],
+      roteiros: [],
+      monitores: []
+    },
+    {
+      descricao: "2020.1",
+      metas: ["Requisitos", "Ger. Config.", "Ger. Proj.", "Testes", "Projeto"],
+      peso: [1, 2, 2, 2, 3],
+      vagas: 60,
+      matriculas: [],
+      roteiros: [],
+      monitores: []
+    },
+    {
+      descricao: "2020.2",
+      metas: ["Requisitos", "Ger. Config.", "Ger. Proj.", "Testes", "Projeto"],
+      peso: [1, 2, 2, 2, 3],
+      vagas: 60,
+      matriculas: [],
+      roteiros: [],
+      monitores: []
+    },
+    {
+      descricao: "2020.3",
+      metas: ["Requisitos", "Ger. Config.", "Ger. Proj.", "Testes", "Projeto"],
+      peso: [1, 2, 2, 2, 3],
+      vagas: 60,
+      matriculas: [],
+      roteiros: [],
+      monitores: []
+    },
+    {
+      descricao: "2021.1",
+      metas: ["Anderson", "Ger. Config.", "Ger. Proj.", "Testes", "Projeto"],
+      peso: [1, 2, 2, 2, 3],
+      vagas: 60,
+      matriculas: [],
+      roteiros: [],
+      monitores: []
+    },
+  ]
 
   ngOnInit(): void {
-    this.turmasService.getTurmas().subscribe(
-      (turmas) => {
-        this.listaTurmas = turmas;
-      },
-      (msg) => {
-        alert(msg.message);
-      }
-    );
+    this.turmasService.getTurmas()
+      .subscribe(
+        turmas => { this.turmas = turmas; },
+        msg => { alert(msg.message); }
+      );
+
+    this.turmasStub.forEach((turma) => {
+      let tempTurma = new Turma()
+      tempTurma.descricao = turma.descricao;
+      tempTurma.metas = turma.metas;
+      tempTurma.peso = turma.peso;
+      tempTurma.vagas = turma.vagas;
+      this.turmasService.criar(tempTurma)
+      .subscribe(
+        turma => {
+          if (turma) {
+            this.turmas.push(turma);
+            this.turma = new Turma();
+            this.turmaMetas = '';
+            this.turmaPeso = [];
+          } else {
+            this.turmaRepetida = true;
+          }
+        },
+        msg => { alert(msg.message); }
+      );
+    })
   }
 
-  atualizaTurmaSelecionada() {
-    let selecionada = this.listaTurmas.find(
-      (turma) => turma.descricao == this.descricaoTurmaSelecionada
-    );
-    if (selecionada) {
-      this.turmaSelecionada = selecionada;
-      console.log(this.turmaSelecionada);
-    }else{
-      this.turmaInexistente = true;
-    }
+  criarTurma(): void {
+    this.turma.metas = this.splitMetas(this.turmaMetas);
+
+    this.turmasService.criar(this.turma)
+      .subscribe(
+        turma => {
+          if (turma) {
+            this.turmas.push(turma);
+            this.turma = new Turma();
+            this.turmaMetas = '';
+            this.turmaPeso = [];
+          } else {
+            this.turmaRepetida = true;
+          }
+        },
+        msg => { alert(msg.message); }
+      );
   }
 
-//atualizarNota(m: Matricula, a: Avaliacao): void {
-//  console.log('chegou no att nota do component');
-//
-//  console.log(this.avaliacaoEditar, m, a);
-//  
-//  if(!this.avaliacaoEditar.nota){
-//      this.notaInvalida = true;
-//      return;
-//  }
-//
-//  this.matriculasService.atualizarNota(m, this.avaliacaoEditar)
-//    .subscribe(
-//      notaResponse => {
-//        if (notaResponse) {
-//          this.avaliacaoEditar = new Avaliacao();
-//          Object.assign(a, notaResponse);
-//
-//          this.matriculasService.getMatriculas().subscribe(
-//            (matriculasResponse) => {
-//              this.matriculaSelecionada = matriculasResponse.find(m => m.aluno.cpf == this.matriculaSelecionada.aluno.cpf);
-//            },
-//            (msg) => {
-//              alert(msg.message);
-//            }
-//          )
-//        } else {
-//          alert('O aluno não foi atualizado');
-//        }
-//      }
-//    );
-//}
+  editarTurma(t: Turma): void {
+    console.log(this.turma);
+    this.turmaEditar.copyFrom(t);
+    this.turmaEditar.metas = [];
+    this.turmaEditarMetas = t.metas.join(', ');
+  }
 
-  editarNota(avaliacao: Avaliacao): void {
-    this.avaliacaoEditar.copyFrom(avaliacao);
+  atualizarTurma(t: Turma): void {
+    this.turmaEditar.metas = this.splitMetas(this.turmaEditarMetas);
+
+    this.turmasService.atualizar(this.turmaEditar)
+      .subscribe(
+        turma => {
+          if (turma) {
+            this.turmaEditar = new Turma();
+            this.turmaEditarMetas = '';
+            Object.assign(t, turma);
+          } else {
+            alert('A turma não foi atualizada');
+          }
+        }
+      );
+  }
+
+  removerTurma(t: Turma): void {
+    this.turmasService.remover(t)
+      .subscribe(turma => {
+        if (turma) {
+          this.turmas = this.turmas.filter(t => t.descricao !== turma.descricao);
+        } else {
+          alert('A turma não foi removida');
+        }
+      });
+  }
+
+  private splitMetas(metasStr: string): string[] {
+    let metas: string[] = [];
+
+    metasStr.split(',').forEach((meta: string) => {
+      if (meta.trim())
+        metas.push(meta.trim());
+    });
+
+    return metas;
   }
 }

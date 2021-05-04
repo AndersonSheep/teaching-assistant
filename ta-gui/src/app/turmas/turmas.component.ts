@@ -143,6 +143,7 @@ export class TurmasComponent implements OnInit {
   }
 
   editarTurma(t: Turma): void {
+    console.log(this.turma);
     this.turmaEditar.copyFrom(t);
     this.turmaEditar.metas = [];
     this.turmaEditarMetas = t.metas.join(', ');
