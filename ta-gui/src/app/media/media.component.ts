@@ -16,7 +16,12 @@ export class MediaComponent implements OnInit {
   turmaPeso: number []= [];
   turmaRepetida: boolean = false;
   turmaEditar: Turma = new Turma();
+//--------------------
   turmaEditarMetas: string = '';
+  descricaoTurmaSelecionada: string = '';
+  turmaInexistente: boolean = false;
+
+
 
   constructor(private turmasService: TurmasService) { }
 
@@ -166,6 +171,19 @@ export class MediaComponent implements OnInit {
           }
         }
       );
+  }
+
+  atualizaTurmaSelecionada() {
+    let selecionada = this.turmas.find(
+      (turma) => turma.descricao == this.descricaoTurmaSelecionada
+    );
+    if (selecionada) {
+      this.turmaEditar = selecionada;
+      this.turma.peso = [];
+      this.turma.peso = this.turmaEditar.peso;
+    }else{
+      this.turmaInexistente = true;
+    }
   }
 
   removerTurma(t: Turma): void {
