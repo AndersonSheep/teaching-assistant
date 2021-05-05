@@ -5,7 +5,7 @@ import { TurmasService } from '../turmas/turmas.service';
 
 
 @Component({
-  selector: 'app-turmas',
+  selector: 'app-media',
   templateUrl: './media.component.html',
   styleUrls: [ './media.component.css' ]
 })
@@ -177,6 +177,8 @@ export class MediaComponent implements OnInit {
     let selecionada = this.turmas.find(
       (turma) => turma.descricao == this.descricaoTurmaSelecionada
     );
+    console.log(selecionada);
+
     if (selecionada) {
       this.turmaEditar = selecionada;
       this.turma.peso = [];

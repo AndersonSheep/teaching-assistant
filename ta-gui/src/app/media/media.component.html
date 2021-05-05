@@ -11,59 +11,39 @@
           </datalist>
         </td>
       </tr>
-      <tr>
-        <td><label for="add-turma-metas">Metas</label></td>
-        <td><input id="add-turma-metas" placeholder="Meta 1, Meta 2, ..." [(ngModel)]="turmaMetas"></td>
-      </tr>
-      <tr>
-        <td><label for="add-turma-vagas">Vagas</label></td>
-        <td><input id="add-turma-vagas" type="number" [(ngModel)]="turma.vagas"></td>
-      </tr>
-      <tr>
-        <td>
-          <button class="add-turma" (click)="criarTurma()">Adicionar</button>
-        </td>
-      </tr>
     </table>
-    <div class="turma-repetida" *ngIf="turmaRepetida">
-         <span>
-           Já existe uma turma com essa descrição.<br>
-           Por favor, tente novamente.
-         </span>
+    <div class="turma-inexistente" *ngIf="turmaInexistente">
+      <span>
+        Não existe turma com essa descrição.<br>
+        Por favor, tente novamente.
+      </span>
+      <button (click)="turmaInexistente=false"><i class="fa fa-times" aria-hidden="true"></i></button>
     </div>
   </div>
 
-  <div class="turmas-cadastradas" *ngIf="turmas.length">
-    <h1>Lista de turmas cadastradas</h1>
+  <div class="turmas-cadastradas" *ngIf="descricaoTurmaSelecionada != ''">
+    <h1>Turma Selecionada - <span class="turma-nome">{{descricaoTurmaSelecionada}}</span></h1>
 
     <table class="turmas-table">
       <thead>
         <tr>
-          <th>Descrição</th>
           <th>Metas</th>
-          <th>Vagas</th>
+          <th>Pesos</th>
           <th>Alunos</th>
           <th>Ações</th>
         </tr>
       </thead>
       <tbody>
-        <tr class="turma" *ngFor="let t of turmas">
-          <td class="turma-descricao">{{ t.descricao }}</td>
+        <tr class="turma" *ngFor="let t of turmas; let i = index">
+          <td class="turma-metas">{{ t.metas[i] }}</td>
 
-          <td class="turma-metas" *ngIf="turmaEditar.descricao !== t.descricao">{{ t.metas.join(', ') }}</td>
-          <td class="turma-metas" *ngIf="turmaEditar.descricao === t.descricao"><input [(ngModel)]="turmaEditarMetas"></td>
+          <td class="turma-peso" *ngIf="turmaEditar.peso !== t.peso">{{ t.peso[i] }}</td>
+          <td class="turma-peso" *ngIf="turmaEditar.peso === t.peso"><input type="number" [(ngModel)]="turmaEditar.peso"></td>
 
-          <td class="turma-vagas" *ngIf="turmaEditar.descricao !== t.descricao">{{ t.vagas }}</td>
-          <td class="turma-vagas" *ngIf="turmaEditar.descricao === t.descricao"><input type="number" [(ngModel)]="turmaEditar.vagas"></td>
-
-          <td class="turma-numMatriculas">{{ t.matriculas.length }}</td>
-
-          <td class="acoes" *ngIf="turmaEditar.descricao !== t.descricao">
+          <td class="acoes" *ngIf="turmaEditar.metas !== t.metas">
             <button name="editar-turma" (click)="editarTurma(t)">Editar</button>
-            &nbsp;
-            <button name="remover-turma" (click)="removerTurma(t)">Remover</button>
           </td>
-          <td *ngIf="turmaEditar.descricao === t.descricao" class="acoes">
+          <td *ngIf="turmaEditar.metas === t.metas" class="acoes">
             <button name="atualizar-turma" (click)="atualizarTurma(t)">Salvar</button>
           </td>
         </tr>
